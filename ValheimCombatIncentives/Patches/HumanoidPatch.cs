@@ -67,22 +67,15 @@ namespace ValheimCombatIncentives.Patches
 
             __instance.RaiseSkill(Skills.SkillType.Blocking, experienceBonus);
 
-            var logMessage = $"\nGranted {Skills.SkillType.Blocking} {experienceBonus} experience!\n" +
-                             $"Post-Resistance Damage: {__state.GetTotalBlockableDamage()}\n" +
-                             $"Blocking Device: {currentBlocker.m_shared.m_name} (BP w/ Skill: {blockPower})\n" +
-                             $"Parried: {didParry}\n" +
-                             $"Resulting Damage: {damageWithShield}\n" +
-                             $"Damage Blocked: {amountMitigated} \n" +
-                             $"Experience Bonus: {experienceBonus}";
+            Jotunn.Logger.LogInfo($"\nGranted {Skills.SkillType.Blocking} {experienceBonus} experience!\n" +
+                                  $"Post-Resistance Damage: {__state.GetTotalBlockableDamage()}\n" +
+                                  $"Blocking Device: {currentBlocker.m_shared.m_name} (BP w/ Skill: {blockPower})\n" +
+                                  $"Parried: {didParry}\n" +
+                                  $"Resulting Damage: {damageWithShield}\n" +
+                                  $"Damage Blocked: {amountMitigated} \n" +
+                                  $"Experience Bonus: {experienceBonus}");
 
-            Jotunn.Logger.LogInfo(logMessage);
-
-            if (ShowNotifications.Value && experienceBonus >= NotificationExperienceThreshold.Value)
-            {
-                // TODO: Add notification
-                Utils.ShowCenterMessage(logMessage);
-            }
-
+            Utils.ShowExperienceNotification(Skills.SkillType.Blocking, experienceBonus);
             return true;
         }
     }

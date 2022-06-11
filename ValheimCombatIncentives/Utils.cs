@@ -1,14 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using StackingNotifications;
 using UnityEngine;
+using static ValheimCombatIncentives.ValheimCombatIncentives;
 
 namespace ValheimCombatIncentives
 {
     public static class Utils
     {
-        public static void ShowCenterMessage(string message,
-            MessageHud.MessageType type = MessageHud.MessageType.Center)
+        public static void ShowExperienceNotification(Skills.SkillType skill, float experience)
         {
-            Player.m_localPlayer.Message(type, message);
+            if (!ShowNotifications.Value || experience < NotificationExperienceThreshold.Value) return;
+            var color = experience > 50 ? nameof(Color.magenta) :
+                experience > 25 ? nameof(Color.red) :
+                experience > 10 ? nameof(Color.yellow) :
+                nameof(Color.white);
+
+            NotificationHandler.Instance.AddNotification($"{skill} <color={color}>+{experience}</color> XP");
         }
 
         public static float GetExperienceBonusFromDamage(Character victim, HitData hit, float experienceModifier)

@@ -1,9 +1,10 @@
 ﻿{
-  "name": "ValheimOffload",
+  "name": "ValheimCombatIncentives",
   "description": "",
-  "version_number": "0.0.6",
-  "website_url": "https://github.com/MrManlyPrincess/ValheimOffload",
+  "version_number": "0.0.1",
+  "website_url": "https://github.com/MrManlyPrincess/ValheimCombatIncentives",
   "dependencies": [
-    "ValheimModding-Jotunn-2.6.1"
+    "ValheimModding-Jotunn-2.6.1",
+    "paddywan-StackingNotifications-1.0.3"
   ]
 }

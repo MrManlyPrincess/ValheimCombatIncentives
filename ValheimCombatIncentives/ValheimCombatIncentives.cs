@@ -77,13 +77,13 @@ namespace ValheimCombatIncentives
             ModEnabled = Config.Bind("General", "Enabled", true, "Enable this mod");
             ShowNotifications = Config.Bind("General", "Show Notifications", true, "Show notifications on XP events");
             NotificationExperienceThreshold = Config.Bind("General", "Notification Experience Threshold",
-                0f,
+                1.0f,
                 "The threshold after which to show a notification for an experience bonus.");
 
             #region Damage Multipliers
 
             DamageExperienceMultiplier = Config.Bind("Damage Multipliers", "Dealt Damage Multiplier",
-                0.05f,
+                0.03f,
                 "The multiplier to apply to damage dealt to determine the amount of bonus experience given.");
 
             BlockDamageExperienceMultiplier = Config.Bind("Damage Multipliers", "Blocked Damage Multiplier",

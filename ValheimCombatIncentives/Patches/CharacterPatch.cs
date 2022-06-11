@@ -12,15 +12,17 @@ namespace ValheimCombatIncentives.Patches
     {
         [HarmonyPatch(nameof(Character.RPC_Damage))]
         [HarmonyPrefix]
-        public static void PrefixOnDamage(Character __instance, long sender, HitData hit, ref bool __state)
+        public static void PrefixOnDamage(Character __instance, long sender, HitData hit,
+            ref Tuple<bool, float> __state)
         {
-            __state = __instance.m_baseAI && !__instance.m_baseAI.m_alerted &&
-                      hit.m_backstabBonus > 1f && Time.time - __instance.m_backstabTime > 300.0f;
+            __state = new Tuple<bool, float>(__instance.m_baseAI && !__instance.m_baseAI.m_alerted &&
+                                             hit.m_backstabBonus > 1f && Time.time - __instance.m_backstabTime > 300.0f,
+                __instance.GetHealth());
         }
 
         [HarmonyPatch(nameof(Character.RPC_Damage))]
         [HarmonyPostfix]
-        public static void PostfixOnDamage(Character __instance, long sender, HitData hit, bool __state)
+        public static void PostfixOnDamage(Character __instance, long sender, HitData hit, Tuple<bool, float> __state)
         {
             var attacker = hit.GetAttacker() as Player;
             if (!attacker) return;
@@ -29,15 +31,16 @@ namespace ValheimCombatIncentives.Patches
                 hit,
                 DamageExperienceMultiplier.Value);
 
-            var isSurpriseAttack = __state;
 
             var isSecondaryAttack = attacker.GetCurrentWeapon().HaveSecondaryAttack() &&
                                     attacker.m_currentAttack.m_attackAnimation == attacker.GetCurrentWeapon().m_shared
                                         .m_secondaryAttack?.m_attackAnimation;
 
+            var isSurpriseAttack = __state.Item1;
             if (isSurpriseAttack)
             {
-                HandleSneakBonus(__instance, hit, attacker);
+                var preAttackVictimHealth = __state.Item2;
+                HandleSneakBonus(__instance, preAttackVictimHealth, hit, attacker);
             }
 
             experienceBonus *= isSecondaryAttack ? SecondaryAttackMultiplier.Value : 1f;
@@ -66,31 +69,31 @@ namespace ValheimCombatIncentives.Patches
                   $"Draw Percentage: {drawPercentage} (Mult: {drawPercentageMultiplier})"
                 : string.Empty;
 
-            var logMessage = $"\nGranted {hit.m_skill} {experienceBonus} experience!\n" +
-                             $"Damage Dealt: {hit.GetTotalDamage()}\n" +
-                             $"Is Secondary Attack: {isSecondaryAttack}\n" +
-                             $"Is Surprise Attack: {isSurpriseAttack}" +
-                             rangedWeaponAddition;
+            Jotunn.Logger.LogInfo($"\nGranted {hit.m_skill} {experienceBonus} experience!\n" +
+                                  $"Damage Dealt: {hit.GetTotalDamage()}\n" +
+                                  $"Is Secondary Attack: {isSecondaryAttack}\n" +
+                                  $"Is Surprise Attack: {isSurpriseAttack}" +
+                                  rangedWeaponAddition);
 
-            Jotunn.Logger.LogInfo(logMessage);
-            if (ShowNotifications.Value && experienceBonus >= NotificationExperienceThreshold.Value)
-            {
-                // TODO: Add notification
-                Utils.ShowCenterMessage(logMessage);
-            }
+            Utils.ShowExperienceNotification(hit.m_skill, experienceBonus);
         }
 
-        private static void HandleSneakBonus(Character __instance, HitData hit, Player attacker)
+        private static void HandleSneakBonus(Character __instance, float preAttackVictimHealth, HitData hit,
+            Player attacker)
         {
             var sneakExperienceBonus = Utils.GetExperienceBonusFromDamage(__instance, hit,
                 SneakDamageExperienceMultiplier.Value);
 
-            var attackWillKill = hit.GetTotalDamage() >= __instance.GetHealth();
+            var attackWillKill = hit.GetTotalDamage() >= preAttackVictimHealth;
             sneakExperienceBonus *= attackWillKill ? AssassinateExperienceMultiplier.Value : 1f;
 
+
+            Jotunn.Logger.LogInfo($"\nGranted {hit.m_skill} {sneakExperienceBonus} experience!\n" +
+                                  $"Damage Dealt: {hit.GetTotalDamage()}\n" +
+                                  $"Is Assassination: {attackWillKill}");
+
             attacker.RaiseSkill(Skills.SkillType.Sneak, sneakExperienceBonus);
-            Jotunn.Logger.LogInfo($"Granted {Skills.SkillType.Sneak} {sneakExperienceBonus} experience!\n" +
-                                  $"Damage Dealt: {hit.GetTotalDamage()}");
+            Utils.ShowExperienceNotification(Skills.SkillType.Sneak, sneakExperienceBonus);
         }
 
         private static void HandleRangedWeapon(Skills.SkillType skill,
