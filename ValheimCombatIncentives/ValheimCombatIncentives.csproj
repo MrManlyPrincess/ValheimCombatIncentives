@@ -7,8 +7,8 @@
     <ProjectGuid>{DEAF4438-8089-40ED-8175-398E1261D45B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ValheimWards</RootNamespace>
-    <AssemblyName>ValheimWards</AssemblyName>
+    <RootNamespace>ValheimCombatIncentives</RootNamespace>
+    <AssemblyName>ValheimCombatIncentives</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -82,12 +82,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\HitDataExtensions.cs" />
     <Compile Include="Extensions\Vector2iExtensions.cs" />
     <Compile Include="Extensions\Vector3Extensions.cs" />
-    <Compile Include="Patches\PrivateAreaPatch.cs" />
+    <Compile Include="Patches\CharacterPatch.cs" />
+    <Compile Include="Patches\HumanoidPatch.cs" />
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
     <Compile Include="Utils.cs" />
-    <Compile Include="ValheimWards.cs" />
+    <Compile Include="ValheimCombatIncentives.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

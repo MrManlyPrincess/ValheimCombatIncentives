@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace ValheimWards.Extensions
+namespace ValheimCombatIncentives.Extensions
 {
     public static class Vector2iExtensions
     {
