@@ -85,7 +85,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\HitDataExtensions.cs" />
     <Compile Include="Extensions\Vector2iExtensions.cs" />
     <Compile Include="Extensions\Vector3Extensions.cs" />
     <Compile Include="Patches\CharacterPatch.cs" />

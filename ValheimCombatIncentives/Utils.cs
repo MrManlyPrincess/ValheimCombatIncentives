@@ -6,7 +6,7 @@ namespace ValheimCombatIncentives
 {
     public static class Utils
     {
-        public static void ShowExperienceNotification(Skills.SkillType skill, float experience)
+        public static void ShowExperienceNotification(Skills.SkillType skill, float experience, float distance = -1)
         {
             if (!ShowNotifications.Value || experience < NotificationExperienceThreshold.Value) return;
             var color = experience > 50 ? nameof(Color.magenta) :
@@ -14,7 +14,7 @@ namespace ValheimCombatIncentives
                 experience > 10 ? nameof(Color.yellow) :
                 nameof(Color.white);
 
-            NotificationHandler.Instance.AddNotification($"{skill} <color={color}>+{experience}</color> XP");
+            NotificationHandler.Instance.AddNotification($"{skill} <color={color}>+{experience}</color> XP {(distance > 0 ? $"({distance:0.#}m" : "")}");
         }
 
         public static float GetExperienceBonusFromDamage(Character victim, HitData hit, float experienceModifier)

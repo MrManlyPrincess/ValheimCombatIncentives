@@ -45,8 +45,9 @@ namespace ValheimCombatIncentives
         public static ConfigEntry<float> SecondaryAttackMultiplier;
 
         public static ConfigEntry<float> BowDistanceMultiplier;
-        public static ConfigEntry<float> SpearDistanceMultiplier;
+        public static ConfigEntry<float> NonBowDistanceMultiplier;
 
+        public static ConfigEntry<float> MinimumDistanceForBonus;
         public static ConfigEntry<float> DrawMinMultiplier;
         public static ConfigEntry<float> DrawMaxMultiplier;
 
@@ -80,6 +81,10 @@ namespace ValheimCombatIncentives
                 1.0f,
                 "The threshold after which to show a notification for an experience bonus.");
 
+            MinimumDistanceForBonus = Config.Bind("General", "Minimum Distance for Experience Bonus",
+                5.0f,
+                $"The distance at which to begin considering distance as a factor for boosting experience");
+            
             #region Damage Multipliers
 
             DamageExperienceMultiplier = Config.Bind("Damage Multipliers", "Dealt Damage Multiplier",
@@ -126,9 +131,9 @@ namespace ValheimCombatIncentives
                 $"The multiplier to apply AFTER the '{DamageExperienceMultiplier.Definition.Key}' when bow attacks are performed." +
                 "This is first applied to the distance that the ranged attack was made from, then the result is applied to the existing experienceBonus.");
 
-            SpearDistanceMultiplier = Config.Bind("Incentive Multipliers", "Spear Distance Multiplier",
+            NonBowDistanceMultiplier = Config.Bind("Incentive Multipliers", "Non-Bow Distance Multiplier",
                 0.2f,
-                $"The multiplier to apply AFTER the '{DamageExperienceMultiplier.Definition.Key}' when spear throws are performed." +
+                $"The multiplier to apply AFTER the '{DamageExperienceMultiplier.Definition.Key}' when weapon throws are performed." +
                 "This is first applied to the distance that the ranged attack was made from, then the result is applied to the existing experienceBonus.");
 
             DrawMinMultiplier = Config.Bind("Incentive Multipliers", drawMinKey,

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
-using ValheimCombatIncentives.Extensions;
 using static ValheimCombatIncentives.ValheimCombatIncentives;
 
 namespace ValheimCombatIncentives.Patches
@@ -31,10 +29,16 @@ namespace ValheimCombatIncentives.Patches
                 hit,
                 DamageExperienceMultiplier.Value);
 
-
-            var isSecondaryAttack = attacker.GetCurrentWeapon().HaveSecondaryAttack() &&
+            var isSecondaryAttack = false;
+            var currentWeapon = attacker.GetCurrentWeapon();
+            if (currentWeapon != null)
+            {
+                isSecondaryAttack = attacker.GetCurrentWeapon() != null &&
+                                    attacker.GetCurrentWeapon().HaveSecondaryAttack() &&
                                     attacker.m_currentAttack.m_attackAnimation == attacker.GetCurrentWeapon().m_shared
                                         .m_secondaryAttack?.m_attackAnimation;
+            }
+
 
             var isSurpriseAttack = __state.Item1;
             if (isSurpriseAttack)
@@ -49,22 +53,22 @@ namespace ValheimCombatIncentives.Patches
                 : 1f;
 
             var distance = Vector3.Distance(__instance.GetTransform().position, attacker.GetTransform().position);
+            var isRangedAttack = distance >= MinimumDistanceForBonus.Value;
             var drawPercentage = -1f;
-            var drawPercentageMultiplier = -1f;
 
-            if (hit.IsFromRangedWeapon())
+            if (isRangedAttack)
             {
-                HandleRangedWeapon(hit.m_skill,
-                    attacker,
+                HandleDistance(hit.m_skill,
                     distance,
-                    ref drawPercentage,
-                    ref experienceBonus,
-                    out drawPercentageMultiplier);
+                    ref experienceBonus);
             }
+
+            HandleDraw(attacker.m_currentAttack.m_attackDrawPercentage, ref experienceBonus,
+                out var drawPercentageMultiplier);
 
             attacker.RaiseSkill(hit.m_skill, experienceBonus);
 
-            var rangedWeaponAddition = hit.IsFromRangedWeapon()
+            var rangedWeaponAddition = isRangedAttack
                 ? $"\nDistance: {distance}\n" +
                   $"Draw Percentage: {drawPercentage} (Mult: {drawPercentageMultiplier})"
                 : string.Empty;
@@ -96,23 +100,22 @@ namespace ValheimCombatIncentives.Patches
             Utils.ShowExperienceNotification(Skills.SkillType.Sneak, sneakExperienceBonus);
         }
 
-        private static void HandleRangedWeapon(Skills.SkillType skill,
-            Humanoid attacker,
+        private static void HandleDistance(Skills.SkillType skill,
             float distance,
-            ref float drawPercentage,
-            ref float experienceBonus,
-            out float drawPercentageMultiplier)
+            ref float experienceBonus)
+        {
+            var multiplier = skill == Skills.SkillType.Bows
+                ? BowDistanceMultiplier.Value
+                : NonBowDistanceMultiplier.Value;
+
+            experienceBonus *= 1 + distance * multiplier;
+        }
+
+        private static void HandleDraw(float drawPercentage, ref float experienceBonus, out float drawPercentageMultiplier)
         {
             drawPercentageMultiplier = -1;
-
-            var multiplier = skill == Skills.SkillType.Spears
-                ? SpearDistanceMultiplier.Value
-                : BowDistanceMultiplier.Value;
-            experienceBonus *= 1 + distance * multiplier;
-
-            if (skill != Skills.SkillType.Bows) return;
-
-            drawPercentage = attacker.m_currentAttack.m_attackDrawPercentage;
+            if (drawPercentage == 0) return;
+            
             drawPercentageMultiplier = Utils.MapToRange(drawPercentage, 0f, 1f,
                 DrawMinMultiplier.Value, DrawMaxMultiplier.Value);
 
